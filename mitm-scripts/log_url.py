@@ -2,7 +2,7 @@ import time
 import argparse
 
 
-class print_host:
+class log_url:
 
     def __init__(self, dir):
         self.dir = dir
@@ -10,7 +10,8 @@ class print_host:
     def response(self, flow):
         filename = self.dir + str(int(time.time()))
         with open(filename, "a") as f:
-            f.write(flow.request.method + " " + flow.request.pretty_url + "\n")
+            f.write(flow.request.method + " " +
+                    urllib.unquote(flow.request.pretty_url) + "\n")
 
 
 def start():
@@ -21,4 +22,4 @@ def start():
 
     log_dir = args.log_dir
 
-    return print_host(log_dir)
+    return log_url(log_dir)
