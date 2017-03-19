@@ -21,16 +21,17 @@ class print_ad_dest:
                     raw_html.replace("\\x3d", "=").replace("\\x22", '"'))
                 m1 = re.search('buildAdSlot\(.*?\)', raw_html)
                 m2 = re.search('adurl=http.*?\"', raw_html)
-                m4 = re.search("adurl\\\\x3dhttp.*?\\\\x22", raw_html)
-                m3 = re.search("adurl\\\\x3dhttp.*?\'", raw_html)
+                m3 = re.search(
+                    "adurl\\\\x3dhttp.*?(?:\'|\"|\\\\x22)", raw_html)
                 if m1:
                     print(m1.group(0) + '\n')
                 elif m2:
                     print(urllib.unquote(m2.group(0)[6:-1]) + '\n')
-                elif m4:
-                    print(urllib.unquote(m4.group(0)[9:-4]) + '\n')
                 elif m3:
-                    print(urllib.unquote(m3.group(0)[9:-1]) + '\n')
+                    if m3.group(0)[-1] == "\'" or m3.group(0)[-1] == '\"':
+                        print(urllib.unquote(m3.group(0)[9:-1]) + '\n')
+                    else:
+                        print(urllib.unquote(m3.group(0)[9:-4]) + '\n')
                 else:
                     if "new HybridAds(" in raw_html:
                         print("Cannot support Hybrid Ads for now\n")
@@ -38,8 +39,7 @@ class print_ad_dest:
                     with open("/tmp/" + str(count) + ".html.txt", "w") as f:
                         f.write(
                             "<!-- Original url: " + flow.request.pretty_url + "-->\n")
-                        # f.write(soup.prettify())
-                        f.write(flow.response.content)
+                        f.write(soup.prettify())
                     count += 1
         except KeyError:
             pass
