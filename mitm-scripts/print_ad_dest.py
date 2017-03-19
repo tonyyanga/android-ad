@@ -2,21 +2,26 @@ import time
 import argparse
 import urllib
 import re
-from BeautifulSoup import BeautifulSoup
-
-count = 0
+try:
+    from BeautifulSoup import BeautifulSoup
+except ImportError:
+    pass
 
 
 class print_ad_dest:
 
     def __init__(self):
+        self.count = 0
+
         # primarily used for DataXu urls (https://i.w55c.net/*)
         self.regex1 = re.compile('rurl%3Dhttp.*?\\\\x26')
+
+        # generic google redirects
         self.regex2 = re.compile('adurl=http.*?\"')
         self.regex3 = re.compile("adurl\\\\x3dhttp.*?(?:\'|\"|\\\\x22)")
 
     def response(self, flow):
-        global count
+
         try:
             if ("https://pubads.g.doubleclick.net/gampad/ads" in flow.request.pretty_url or
                     "https://googleads.g.doubleclick.net/mads/gma" in flow.request.pretty_url or
@@ -25,8 +30,7 @@ class print_ad_dest:
                 print(
                     flow.request.method + " " + urllib.unquote(flow.request.pretty_url) + "\n")
                 raw_html = flow.response.content
-                soup = BeautifulSoup(
-                    raw_html.replace("\\x3d", "=").replace("\\x22", '"'))
+
                 m1 = self.regex1.search(raw_html)
                 m2 = self.regex2.search(raw_html)
                 m3 = self.regex3.search(raw_html)
@@ -43,11 +47,16 @@ class print_ad_dest:
                     if "new HybridAds(" in raw_html:
                         print("Cannot support Hybrid Ads for now\n")
                     print("NO MATCH!!!!\n")
-                    with open("/tmp/" + str(count) + ".html.txt", "w") as f:
+                    with open("/tmp/" + str(self.count) + ".html.txt", "w") as f:
                         f.write(
                             "<!-- Original url: " + flow.request.pretty_url + " -->\n")
-                        f.write(soup.prettify())
-                    count += 1
+                        try:
+                            soup = BeautifulSoup(
+                                raw_html.replace("\\x3d", "=").replace("\\x22", '"'))
+                            f.write(soup.prettify())
+                        except NameError:
+                            f.write(raw_html)
+                    self.count += 1
         except KeyError:
             pass
 
