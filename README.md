@@ -11,4 +11,4 @@ Disable IPv6 on a rooted android device
 
 Run mitmdump with a script
 
-`mitmdump [--socks] -s <script.py> -p <port> [--quiet]`
+`mitmdump [--socks] -w <mitm_log.log> -s "<script.py> -d <db_location>" -p <port> [--quiet]`

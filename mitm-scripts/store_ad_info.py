@@ -13,7 +13,7 @@ p = None
 
 class print_ad_dest:
 
-    def __init__(self):
+    def __init__(self, db_dir):
         self.count = 0
 
         # primarily used for DataXu urls (https://i.w55c.net/*)
@@ -24,8 +24,10 @@ class print_ad_dest:
         self.regex3 = re.compile(
             "adurl\\\\x3d(http|market).*?(?:\'|\"|\\\\x22)")
 
-        self.conn = sqlite3.connect('/tmp/ad_traffic.db')
+        self.conn = sqlite3.connect(db_dir)
         self.c = self.conn.cursor()
+
+        print("Connected to db at " + db_dir)
 
         create_table = \
             "create table if not exists ad (method text, request_url text, ad_url text, response blob)"
@@ -99,7 +101,11 @@ class print_ad_dest:
 
 def start():
     global p
-    p = print_ad_dest()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-d", "--db-dir", required=True, help="A directory in which traffic db can be stored")
+    args = parser.parse_args()
+    p = print_ad_dest(args.db_dir)
     return p
 
 
