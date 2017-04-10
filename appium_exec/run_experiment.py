@@ -28,10 +28,13 @@ def generate_new_identity(driver):
     # TODO: use primal's hooked Android OS?
 
     # Generate new Android Advertising ID
-    bash_cmd = """busybox sed -i -E 's/-.{12}</-%s</g' /data/data/com.google.android.gms/shared_prefs/adid_settings.xml""" % binascii.b2a_hex(
+    bash_cmd1 = """busybox sed -i -E 's/-.{12}</-%s</g' /data/data/com.google.android.gms/shared_prefs/adid_settings.xml""" % binascii.b2a_hex(
         os.urandom(6))
+    # Reset Android ID
+    bash_cmd2 = "settings put secure android_id %s" % binascii.b2a_hex(
+        os.urandom(8))
     cmd = ["/home/tonyyang/Android/Sdk/platform-tools/adb", "shell",
-           'su -c "%s"' % bash_cmd]
+           'su -c "%s;%s"' % (bash_cmd1, bash_cmd2)]
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE).stdout
     buf = p.read()
     p.close()
