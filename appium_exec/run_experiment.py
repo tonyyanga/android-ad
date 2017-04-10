@@ -1,5 +1,8 @@
 from appium import webdriver
 import time
+import subprocess
+import os
+import binascii
 
 PLATFORM_NAME = "Android"
 
@@ -23,7 +26,15 @@ def get_driver(device_name, app_dir, appium_url='http://localhost:4723/wd/hub'):
 
 def generate_new_identity(driver):
     # TODO: use primal's hooked Android OS?
-    pass
+
+    # Generate new Android Advertising ID
+    bash_cmd = """busybox sed -i -E 's/-.{12}</-%s</g' /data/data/com.google.android.gms/shared_prefs/adid_settings.xml""" % binascii.b2a_hex(
+        os.urandom(6))
+    cmd = ["/home/tonyyang/Android/Sdk/platform-tools/adb", "shell",
+           'su -c "%s"' % bash_cmd]
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE).stdout
+    buf = p.read()
+    p.close()
 
 
 def run_experiment(body, app_dir, num, device_name="TA00403PV1", appium_url='http://localhost:4723/wd/hub'):

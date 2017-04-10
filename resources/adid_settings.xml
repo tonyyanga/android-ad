@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <boolean name="enable_limit_ad_tracking" value="false" />
+    <string name="adid_key">052b6986-7209-413f-b8a9-99c4e4b444f2</string>
+</map>
