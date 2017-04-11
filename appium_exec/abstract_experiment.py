@@ -1,5 +1,18 @@
+class abstract_identity_iterator():
+    """ an identity iterator to provide pre-defined identities"""
+
+    def __init__(self):
+        pass
+
+    def next(self):
+        """ Should return a pair (<adid>, <android_id>) """
+        pass
+
+
 class abstract_experiment:
     """ an experiment to be provided to run_once function"""
+
+    identities = None
 
     def __init__(self, driver):
         """ accept the driver and number of experiments"""

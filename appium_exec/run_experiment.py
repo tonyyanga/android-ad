@@ -24,20 +24,38 @@ def get_driver(device_name, app_dir, appium_url='http://localhost:4723/wd/hub'):
     return driver
 
 
-def generate_new_identity(driver):
+def generate_new_identity(driver, identities=None):
     # TODO: use primal's hooked Android OS?
 
     # Generate new Android Advertising ID
-    bash_cmd1 = """busybox sed -i -E 's/-.{12}</-%s</g' /data/data/com.google.android.gms/shared_prefs/adid_settings.xml""" % binascii.b2a_hex(
-        os.urandom(6))
-    # Reset Android ID
-    bash_cmd2 = "settings put secure android_id %s" % binascii.b2a_hex(
-        os.urandom(8))
+    adid, android_id = "", ""
+    if identities:
+        adid, android_id = identities.next()
+    else:
+        adid = generate_random_adid()
+        android_id = generate_random_android_id()
+
+    # Reset Android ID and ad id
+    bash_cmd1 = """busybox sed -i -E 's/.{8}-.{4}-.{4}-.{4}-.{12}</%s</g' /data/data/com.google.android.gms/shared_prefs/adid_settings.xml""" % adid
+
+    bash_cmd2 = "settings put secure android_id %s" % android_id
     cmd = ["/home/tonyyang/Android/Sdk/platform-tools/adb", "shell",
            'su -c "%s;%s"' % (bash_cmd1, bash_cmd2)]
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE).stdout
     buf = p.read()
     p.close()
+
+
+def generate_random_adid():
+    return binascii.b2a_hex(os.urandom(4)) + '-' + \
+        binascii.b2a_hex(os.urandom(2)) + '-' + \
+        binascii.b2a_hex(os.urandom(2)) + '-' + \
+        binascii.b2a_hex(os.urandom(2)) + '-' + \
+        binascii.b2a_hex(os.urandom(6))
+
+
+def generate_random_android_id():
+    return binascii.b2a_hex(os.urandom(8))
 
 
 def run_experiment(body, app_dir, num, device_name="TA00403PV1", appium_url='http://localhost:4723/wd/hub'):
@@ -50,7 +68,7 @@ def run_experiment(body, app_dir, num, device_name="TA00403PV1", appium_url='htt
     result = []
 
     for _ in range(num):
-        generate_new_identity(driver)
+        generate_new_identity(driver, expr.identities)
         start_time = time.time()
         driver.reset()
         treatment_log = expr.treatment()
