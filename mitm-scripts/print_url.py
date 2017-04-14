@@ -7,7 +7,7 @@ class print_url:
 
     def response(self, flow):
         print(
-            flow.request.method + " " + urllib.unquote(flow.request.pretty_url) + "\n")
+            flow.request.method + " " + urllib.parse.unquote(flow.request.pretty_url) + "\n")
 
 
 def start():

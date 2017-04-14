@@ -2,7 +2,8 @@ import time
 import argparse
 import urllib
 import re
-import sqlite3
+import sys
+import csv
 try:
     from BeautifulSoup import BeautifulSoup
 except ImportError:
@@ -21,53 +22,56 @@ class print_ad_dest:
 
         # generic google redirects
         self.regex2 = re.compile('adurl=(http|market).*?\"')
-        self.regex3 = re.compile(
-            "adurl\\\\x3d(http|market).*?(?:\'|\"|\\\\x22)")
+        self.regex3 = re.compile("adurl\\\\x3d(http|market).*?(?:\'|\"|\\\\x22)")
+        self.regex4 = re.compile('adurl=(http|market).*?\\n')
 
-        self.conn = sqlite3.connect(db_dir)
-        self.c = self.conn.cursor()
+        self.conn = open(db_dir, 'w', newline='')
+        self.c = csv.writer(self.conn)
 
         print("Connected to db at " + db_dir)
 
-        create_table = \
-            "create table if not exists ad (method text, request_url text, ad_url text, response blob)"
-        self.c.execute(create_table)
-        self.conn.commit()
+        #create_table = \
+        #    "create table if not exists ad (method text, request_url text, ad_url text, response blob)"
+        #self.c.execute(create_table)
+        #self.conn.commit()
 
     def close(self):
         self.conn.close()
 
     def response(self, flow):
         try:
-            if ("https://pubads.g.doubleclick.net/gampad/ads" in flow.request.pretty_url or
+            if ("https://pubads.g.doubleclick.net/gampad/ad" in flow.request.pretty_url or
                     "https://googleads.g.doubleclick.net/mads/gma" in flow.request.pretty_url or
                     "https://ad.doubleclick.net/ddm/adj" in flow.request.pretty_url) \
                     and len(flow.response.content) > 0:
-                print(
-                    flow.request.method + " " + urllib.unquote(flow.request.pretty_url) + "\n")
-                raw_html = flow.response.content
+                #print(
+                #    flow.request.method + " " + urllib.parse.unquote(flow.request.pretty_url) + "\n")
+                raw_html = flow.response.content.decode('utf-8')
 
                 ad_url = "No match"
 
                 m1 = self.regex1.search(raw_html)
                 m2 = self.regex2.search(raw_html)
                 m3 = self.regex3.search(raw_html)
+                m4 = self.regex4.search(raw_html)
                 if m1:
-                    print(urllib.unquote(m1.group(0)[7:-4]) + '\n')
-                    ad_url = urllib.unquote(m1.group(0)[7:-4])
+                #    print(urllib.parse.unquote(m1.group(0)[7:-4]) + '\n')
+                    ad_url = urllib.parse.unquote(m1.group(0)[7:-4])
                 elif m2:
-                    print(urllib.unquote(m2.group(0)[6:-1]) + '\n')
-                    ad_url = urllib.unquote(m2.group(0)[6:-1])
+                #    print(urllib.parse.unquote(m2.group(0)[6:-1]) + '\n')
+                    ad_url = urllib.parse.unquote(m2.group(0)[6:-1])
                 elif m3:
                     if m3.group(0)[-1] == "\'" or m3.group(0)[-1] == '\"':
-                        print(urllib.unquote(m3.group(0)[9:-1]) + '\n')
-                        ad_url = urllib.unquote(m3.group(0)[9:-1])
+                #        print(urllib.parse.unquote(m3.group(0)[9:-1]) + '\n')
+                        ad_url = urllib.parse.unquote(m3.group(0)[9:-1])
                     else:
-                        print(urllib.unquote(m3.group(0)[9:-4]) + '\n')
-                        ad_url = urllib.unquote(m3.group(0)[9:-4])
+                #        print(urllib.parse.unquote(m3.group(0)[9:-4]) + '\n')
+                        ad_url = urllib.parse.unquote(m3.group(0)[9:-4])
+                elif m4:
+                    ad_url = urllib.parse.unquote(m4.group(0)[6:-1])
                 else:
                     if "new HybridAds(" in raw_html:
-                        print("Cannot support Hybrid Ads for now\n")
+                #        print("Cannot support Hybrid Ads for now\n")
                         ad_url = "Hybrid Ad"
                     print("NO MATCH!!!!\n")
                 try:
@@ -76,13 +80,11 @@ class print_ad_dest:
                     raw_html = soup.prettify()
                 except NameError:
                     pass
-                self.c.execute(
-                    """INSERT INTO ad VALUES (?, ?, ?, ?)""",
-                    (flow.request.method,
-                     urllib.unquote(flow.request.pretty_url),
+                self.c.writerow(
+                    [flow.request.method,
+                     urllib.parse.unquote(flow.request.pretty_url),
                      ad_url,
-                     buffer(raw_html)))
-                self.conn.commit()
+                     raw_html])
 #                     with open("/tmp/" + str(self.count) + ".html.txt", "w") as f:
 #                         f.write(
 #                             "<!-- Original url: " + flow.request.pretty_url + " -->\n")

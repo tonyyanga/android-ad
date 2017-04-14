@@ -6,8 +6,8 @@ sys.path.append("../../appium_exec")
 from run_experiment import run_experiment
 from abstract_experiment import abstract_experiment
 
-# com.pregnancy.healthy.diet_nutrition.tips
-APP_DIR = "/var/www/html/mitm/Pregnancy Care Diet Nutrition_v2.2_apkpure.com.apk"
+# weather channel
+APP_DIR = "/var/www/html/mitm/com.weather.Weather-5.5.6-505060343-minAPI14.apk"
 
 
 class run_weather_channel(abstract_experiment):
@@ -17,7 +17,7 @@ class run_weather_channel(abstract_experiment):
         self.identities = experiment_identities()
 
     def experiment(self):
-        time.sleep(15)
+        time.sleep(13)
 
 if __name__ == "__main__":
-    print(run_experiment(run_weather_channel, app_dir=APP_DIR, num=100))
+    print(run_experiment(run_weather_channel, app_dir=APP_DIR, num=2500))
