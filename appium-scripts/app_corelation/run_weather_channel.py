@@ -20,4 +20,4 @@ class run_weather_channel(abstract_experiment):
         time.sleep(13)
 
 if __name__ == "__main__":
-    print(run_experiment(run_weather_channel, app_dir=APP_DIR, num=2500))
+    print(run_experiment(run_weather_channel, app_dir=APP_DIR, num=2500-271-517))

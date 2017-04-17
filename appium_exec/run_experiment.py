@@ -24,7 +24,7 @@ def get_driver(device_name, app_dir, appium_url='http://localhost:4723/wd/hub'):
     return driver
 
 
-def generate_new_identity(driver, identities=None):
+def generate_new_identity(driver, device_name, identities=None):
     # TODO: use primal's hooked Android OS?
 
     # Generate new Android Advertising ID
@@ -39,11 +39,12 @@ def generate_new_identity(driver, identities=None):
     bash_cmd1 = """busybox sed -i -E 's/.{8}-.{4}-.{4}-.{4}-.{12}</%s</g' /data/data/com.google.android.gms/shared_prefs/adid_settings.xml""" % adid
 
     bash_cmd2 = "settings put secure android_id %s" % android_id
-    cmd = ["/home/tonyyang/Android/Sdk/platform-tools/adb", "shell",
+    cmd = ["/home/tonyyang/Android/Sdk/platform-tools/adb", "-s", device_name, "shell",
            'su -c "%s;%s"' % (bash_cmd1, bash_cmd2)]
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE).stdout
     buf = p.read()
     p.close()
+    return buf
 
 
 def generate_random_adid():
@@ -67,10 +68,16 @@ def run_experiment(body, app_dir, num, device_name="TA00403PV1", appium_url='htt
     expr = body(driver)
     result = []
 
-    for _ in range(num):
-        generate_new_identity(driver, expr.identities)
+    for i in range(num):
+        print("Experiment" + str(i))
+        generate_new_identity(driver, device_name, expr.identities)
         start_time = time.time()
-        driver.reset()
+        try:
+            driver.reset()
+        except Exception:
+            print("reset exception occurred")
+            time.sleep(1)
+            driver.reset()
         treatment_log = expr.treatment()
         experiment_log = expr.experiment()
         driver.close_app()

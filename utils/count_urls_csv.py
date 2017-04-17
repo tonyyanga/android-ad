@@ -1,6 +1,7 @@
 import csv
 
-conn = open("/home/tonyyang/Desktop/comparison experiment/comparison_treated.csv", 'r', newline='')
+conn = open(
+    "/home/tonyyang/Desktop/comparison experiment/comparison_treated.csv", 'r', newline='')
 
 c = csv.reader(conn)
 
