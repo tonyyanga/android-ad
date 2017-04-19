@@ -26,11 +26,14 @@ class print_ad_dest:
             "adurl\\\\x3d(http|market).*?(?:\'|\"|\\\\x22)")
         self.regex4 = re.compile('adurl=(http|market).*?\\n')
         self.regex5 = re.compile(
-            '<IFRAME src=\"https://googleads.g.doubleclick.net/xbbe/pixel?')
+            '<IFRAME src=\"https://googleads.g.doubleclick.net/xbbe/pixel')
         self.regex6 = re.compile(
             "<script src=\'https://a2.adformdsp.net/adfscript/")
         self.regex7 = re.compile(
             "<SCRIPT language=\'JavaScript1.1\' SRC=\"https://ad.doubleclick.net/ddm/adj/")
+
+        self.regex8 = re.compile(
+            "<script type=\"text/javascript\" src=\"https://display-tm.everesttech.net/feed/placement.js")
 
         self.conn = open(db_dir, 'w', newline='')
         self.c = csv.writer(self.conn)
@@ -74,7 +77,7 @@ class print_ad_dest:
                     return self.regex4.search(raw_html)
 
                 def ignore():
-                    return self.regex5.search(raw_html) or self.regex6.search(raw_html) or self.regex7.search(raw_html)
+                    return self.regex5.search(raw_html) or self.regex6.search(raw_html) or self.regex7.search(raw_html) or self.regex8.search(raw_html)
 
                 if m1():
                     #    print(urllib.parse.unquote(m1.group(0)[7:-4]) + '\n')
