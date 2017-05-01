@@ -30,7 +30,7 @@ def generate_new_identity(driver, device_name, identities=None):
     # Generate new Android Advertising ID
     adid, android_id = "", ""
     if identities:
-        adid, android_id = identities.next()
+        adid, android_id, group_id = identities.next()
     else:
         adid = generate_random_adid()
         android_id = generate_random_android_id()
@@ -44,7 +44,7 @@ def generate_new_identity(driver, device_name, identities=None):
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE).stdout
     buf = p.read()
     p.close()
-    return buf
+    return group_id
 
 
 def generate_random_adid():
@@ -70,7 +70,7 @@ def run_experiment(body, app_dir, num, device_name="TA00403PV1", appium_url='htt
 
     for i in range(num):
         print("Experiment" + str(i))
-        generate_new_identity(driver, device_name, expr.identities)
+        group_id = generate_new_identity(driver, device_name, expr.identities)
         start_time = time.time()
         try:
             driver.reset()
@@ -82,7 +82,8 @@ def run_experiment(body, app_dir, num, device_name="TA00403PV1", appium_url='htt
         experiment_log = expr.experiment()
         driver.close_app()
         end_time = time.time()
-        result.append((start_time, end_time, treatment_log, experiment_log))
+        result.append((group_id, start_time, end_time,
+                       treatment_log, experiment_log))
         expr.cleanup()
 
     driver.quit()
