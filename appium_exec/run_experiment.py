@@ -68,23 +68,25 @@ def run_experiment(body, app_dir, num, device_name="TA00403PV1", appium_url='htt
     expr = body(driver)
     result = []
 
-    for i in range(num):
-        print("Experiment" + str(i))
-        group_id = generate_new_identity(driver, device_name, expr.identities)
-        start_time = time.time()
-        try:
-            driver.reset()
-        except Exception:
-            print("reset exception occurred")
+    try:
+        for i in range(num):
+            print("Experiment" + str(i))
+            group_id = generate_new_identity(
+                driver, device_name, expr.identities)
+            start_time = time.time()
+            try:
+                driver.reset()
+            except Exception:
+                print("reset exception occurred")
             time.sleep(1)
             driver.reset()
-        treatment_log = expr.treatment()
-        experiment_log = expr.experiment()
-        driver.close_app()
-        end_time = time.time()
-        result.append((group_id, start_time, end_time,
-                       treatment_log, experiment_log))
-        expr.cleanup()
-
-    driver.quit()
-    return result
+            treatment_log = expr.treatment()
+            experiment_log = expr.experiment()
+            driver.close_app()
+            end_time = time.time()
+            result.append((group_id, start_time, end_time,
+                           treatment_log, experiment_log))
+            expr.cleanup()
+            driver.quit()
+    finally:
+        return result
