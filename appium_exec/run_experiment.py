@@ -78,8 +78,8 @@ def run_experiment(body, app_dir, num, device_name="TA00403PV1", appium_url='htt
                 driver.reset()
             except Exception:
                 print("reset exception occurred")
-            time.sleep(1)
-            driver.reset()
+                time.sleep(1)
+                driver.reset()
             treatment_log = expr.treatment()
             experiment_log = expr.experiment()
             driver.close_app()
@@ -87,6 +87,7 @@ def run_experiment(body, app_dir, num, device_name="TA00403PV1", appium_url='htt
             result.append((group_id, start_time, end_time,
                            treatment_log, experiment_log))
             expr.cleanup()
-            driver.quit()
+    except Exception as e:
+        print(e)
     finally:
         return result

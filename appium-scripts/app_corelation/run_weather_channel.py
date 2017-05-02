@@ -29,7 +29,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     result = run_experiment(run_weather_channel,
-                            app_dir=APP_DIR, num=2500)
+                            app_dir=APP_DIR, num=7500)
 
-    with open(args.log_dir, 'w') as f:
+    with open(args.log_dir, 'a') as f:
         json.dump(result, f)
