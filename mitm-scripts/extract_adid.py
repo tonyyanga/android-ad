@@ -3,6 +3,12 @@ import argparse
 import urllib
 import re
 
+""" Find any string following the format of Android Advertising ID
+
+    See https://support.google.com/googleplay/android-developer/answer/6048248?hl=en
+    for additional information
+"""
+
 
 class print_url:
 

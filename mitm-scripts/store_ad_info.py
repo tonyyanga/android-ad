@@ -9,6 +9,14 @@ try:
 except ImportError:
     pass
 
+""" Primary script to parse AdMob destination urls from mitmproxy traffic output
+
+    Dump file format: CSV
+   
+    Format of each line:
+    Request Method (GET / else), complete request URL, extracted ad destination url, raw HTTP response
+"""
+
 p = None
 
 

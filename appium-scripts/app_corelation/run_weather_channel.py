@@ -19,7 +19,7 @@ class run_weather_channel(abstract_experiment):
         self.identities = experiment_identities()  # set start index here
 
     def experiment(self):
-        time.sleep(13)
+        time.sleep(11)
 
 
 if __name__ == "__main__":
